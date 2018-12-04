@@ -1,5 +1,7 @@
 import pygame
 
+menu_font = "./res/ArcadeClassic.ttf"
+
 WIDTH = 800
 HEIGHT = 600
 
@@ -45,6 +47,34 @@ level = [
     "-                     -                 ",
     "----------------------------------------"
 ]
+
+class Menu():
+    def __init__(self):
+        self.title_font = pygame.font.SysFont(menu_font, 60)
+        self.button_font = pygame.font.SysFont(menu_font, 40)
+    
+        self.title = self.title_font.render("2D Platformer", True, WHITE)
+        self.play_button = self.button_font.render("PLAY", True, WHITE)
+
+    def update(self): 
+        screen.fill(BLACK)
+        screen.blit(self.title, [WIDTH / 2 - self.title.get_rect().width / 2, HEIGHT / 2])
+        screen.blit(self.play_button, [WIDTH / 2 - self.play_button.get_rect().width / 2, HEIGHT / 2 + self.title.get_rect().height + self.play_button.get_rect().height])
+    
+    def is_click_play(self):
+        mouse = pygame.mouse.get_pos()
+
+        if mouse[0] > 367 and mouse[0] < 431 and mouse[1] > 371 and mouse[1] < 391:
+            self.play_button = self.button_font.render("PLAY", True, GREY)
+        
+            click = pygame.mouse.get_pressed()
+        
+            if click[0] == 1:
+                return True
+        else:
+            self.play_button = self.button_font.render("PLAY", True, WHITE)
+        
+        return False
 
 class Block():
     def __init__(self, w, h, x, y, colour):
@@ -156,9 +186,11 @@ def draw_level():
 def main():
     pygame.init()
     running = True
+    paused = True
 
     clock = pygame.time.Clock()
 
+    menu = Menu()
     player, level_blocks = draw_level()
 
     while running:
@@ -166,13 +198,23 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        screen.fill(BLACK)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    paused = True
 
-        for level_block in level_blocks:
-            level_block.update()
-        player.update(level_blocks)
+        if paused:
+            menu.update()
+            paused = not menu.is_click_play()
+
+        else:
+            screen.fill(BLACK)
+
+            for level_block in level_blocks:
+                level_block.update()
+            player.update(level_blocks)
                     
         pygame.display.flip()
+        
         clock.tick(60)
 
     pygame.quit()
