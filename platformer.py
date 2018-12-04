@@ -175,11 +175,12 @@ def draw_level():
 
     for row in range(0, ROWS):
         for col in range(0, 2*COLS):
-            if level[row][col] == '-':
-                level_block = LevelBlock(col*BLOCK_WIDTH, row*BLOCK_HEIGHT, GREY)
-                level_blocks.append(level_block)
-            if level[row][col] == 'p':
-                player = Player(col*BLOCK_WIDTH, row*BLOCK_HEIGHT)
+            if row < len(level) and col < len(level[0]):
+                if level[row][col] == '-':
+                    level_block = LevelBlock(col*BLOCK_WIDTH, row*BLOCK_HEIGHT, GREY)
+                    level_blocks.append(level_block)
+                if level[row][col] == 'p':
+                    player = Player(col*BLOCK_WIDTH, row*BLOCK_HEIGHT)
             
     return player, level_blocks
 
