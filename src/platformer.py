@@ -21,6 +21,7 @@ JUMP_FORCE = 10
 BLACK = (0,0,0)
 WHITE = (255,255,255)
 GREY = (125,125,125)
+BLUE = (0,0,255)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -31,21 +32,21 @@ camX = 0
 camY = 0
 
 level = [
-    "-                                       ",
-    "-                                       ",
-    "-                                       ",
-    "-                                       ",
-    "-                                       ",
-    "-                                       ",
-    "-                                       ",
-    "-                                       ",
-    "-                              -        ",
-    "-                                       ",
-    "-     p                    -            ",
-    "-                       -               ",
-    "-                      -                ",
-    "-                     -                 ",
-    "----------------------------------------"
+    "-                                                           ",
+    "-                                                           ",
+    "-                                                           ",
+    "-                                                           ",
+    "-                                                           ",
+    "-                                                           ",
+    "-                                                           ",
+    "-                                        G         --   --  ",
+    "-                              -             ---            ",
+    "-                                                           ",
+    "-     p                    -                                ",
+    "-                       -                                   ",
+    "-                      -                                    ",
+    "-                     -                                     ",
+    "-------------------------------J-----------G                "
 ]
 
 class Menu():
@@ -102,7 +103,17 @@ class LevelBlock(Block):
     def __init__(self, x, y, colour):
         Block.__init__(self, BLOCK_WIDTH, BLOCK_HEIGHT, x, y, colour)
 
+class JumpBlock(LevelBlock):
+    def __init__(self, x, y):
+        LevelBlock.__init__(self, x, y, WHITE)
+
+class AntiGravityBlock(LevelBlock):
+    def __init__(self, x, y):
+        LevelBlock.__init__(self, x, y, BLUE)
+
 class Player(Block):
+    grav_mult = 1
+    jump_mult = 1
     jumping = False
 
     def __init__(self, x, y):
@@ -146,16 +157,41 @@ class Player(Block):
                     self.rect.left = block.rect.right
         
         self.dy += GRAVITY
-        self.rect.y += self.dy
-    
+        self.rect.y += self.grav_mult*self.dy
+   
         for block in level_blocks:
             if self.rect.colliderect(block):
-                if self.dy > 0:
+                if self.dy*self.grav_mult > 0:
                     self.rect.bottom = block.rect.top
                     self.dy = 0
-                    self.jumping = False
-                elif self.dy < 0:
+
+                    if self.grav_mult == 1:
+                        self.jumping = False
+
+                        if block.__class__.__name__ == 'JumpBlock':
+                            self.jump_mult = 2
+                            self.jump()
+                        elif block.__class__.__name__ == 'AntiGravityBlock':
+                            self.grav_mult *= -1
+                            self.jump_mult = 1
+                        else:
+                            self.jump_mult = 1
+
+                elif self.dy*self.grav_mult < 0:
+                    self.dy = 0
                     self.rect.top = block.rect.bottom
+                    
+                    if self.grav_mult == -1:
+                        self.jumping = False
+
+                        if block.__class__.__name__ == 'JumpBlock':
+                            self.jump_mult = 2
+                            self.jump()
+                        elif block.__class__.__name__ == 'AntiGravityBlock':
+                            self.grav_mult *= -1
+                            self.jump_mult = 1
+                        else:
+                            self.jump_mult = 1
 
         self.dx = 0
     
@@ -167,17 +203,23 @@ class Player(Block):
     
     def jump(self):
         if not self.jumping:
-            self.dy -= JUMP_FORCE
+            self.dy -= self.jump_mult * JUMP_FORCE
             self.jumping = True
 
 def draw_level():
     level_blocks = []
 
     for row in range(0, ROWS):
-        for col in range(0, 2*COLS):
+        for col in range(0, 3*COLS):
             if row < len(level) and col < len(level[0]):
                 if level[row][col] == '-':
                     level_block = LevelBlock(col*BLOCK_WIDTH, row*BLOCK_HEIGHT, GREY)
+                    level_blocks.append(level_block)
+                if level[row][col] == 'J':
+                    level_block = JumpBlock(col*BLOCK_WIDTH, row*BLOCK_HEIGHT)
+                    level_blocks.append(level_block)
+                if level[row][col] == 'G':
+                    level_block = AntiGravityBlock(col*BLOCK_WIDTH, row*BLOCK_HEIGHT)
                     level_blocks.append(level_block)
                 if level[row][col] == 'p':
                     player = Player(col*BLOCK_WIDTH, row*BLOCK_HEIGHT)
