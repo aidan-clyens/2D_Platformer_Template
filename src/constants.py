@@ -1,0 +1,27 @@
+import pygame
+
+menu_font = "./res/ArcadeClassic.ttf"
+
+WIDTH = 800
+HEIGHT = 600
+
+BLOCK_WIDTH = WIDTH / 20
+BLOCK_HEIGHT = BLOCK_WIDTH
+
+ROWS = HEIGHT / BLOCK_HEIGHT
+COLS = WIDTH / BLOCK_WIDTH
+
+PLAYER_WIDTH = BLOCK_WIDTH
+PLAYER_HEIGHT = BLOCK_HEIGHT
+
+PLAYER_SPEED = 10
+GRAVITY = 0.5
+JUMP_FORCE = 10
+
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREY = (125, 125, 125)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
